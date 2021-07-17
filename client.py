@@ -9,7 +9,8 @@ from ride import Ride
 
 # if sys.version_info<(3,0):
 #     input = raw_input
-
+@Pyro5.api.expose
+# @Pyro5.api.behavior(instance_mode="single")
 class RideSharingClient(object):
     def __init__(self, name, phone):
         self.name = name
@@ -21,29 +22,36 @@ class RideSharingClient(object):
         keyPair = RSA.generate(1024, random_seed)
         return keyPair
 
+    @Pyro5.api.expose
     def get_name(self):
         return self.name
 
+    @Pyro5.api.expose
     def get_phone(self):
         return self.phone
 
+    @Pyro5.api.expose
     def get_public_key(self):
         return self.key_pair.publickey()
 
+    @Pyro5.api.expose
     def get_info(self):
         return (self.name, self.phone, self.public_key)
 
     def sign_up(self, server):
-        server.add_user(Proxy(self))
+        server.add_user(self)
 
+    @Pyro5.api.expose
     def offer_ride(self, server, from_, to, date, passengers):
         ride = Ride(self, from_, to, date, passengers)
         server.add_offered_ride(ride)
 
+    @Pyro5.api.expose
     def request_ride(self, server, from_, to, date, passengers):
         ride = Ride(self, from_, to, date, passengers)
         server.add_wanted_ride(ride)
 
+    @Pyro5.api.expose
     def notify_has_ride(self, ride):
         print("Usuario {0} tem uma carona para {1} dia {2} que voce quer".format(ride.get_user().get_name(), ride.get_location()[1], ride.get_date()))
 

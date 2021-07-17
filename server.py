@@ -10,9 +10,6 @@ class RideSharingServer(object):
         self.wanted_rides = []
         self.offered_rides = []
 
-    # def get_clients(self):
-    #     return self.users
-
     def get_offered_rides(self):
         return self.offered_rides
     
