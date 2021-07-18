@@ -1,4 +1,3 @@
-from __future__ import print_function
 import Pyro5.api
 from ride import Ride
 
@@ -17,9 +16,19 @@ class RideSharingServer(object):
     def add_user(self, user):
         self.users.append(user)
         print("Created user {0}.".format(user))
-        self.test_clients()
 
-    def add_offered_ride(self, ride):
+    def get_user_object(self, user_uri):
+        return Pyro5.api.Proxy(user_uri)
+
+    def add_offered_ride(self, ride_json):
+        ride = Ride(
+            user_uri=ride_json["user"],
+            from_=ride_json["location"][0],
+            to=ride_json["location"][1],
+            date=ride_json["date"],
+            passengers=ride_json["passengers"],
+        )
+        print(ride.get_ride_json())
         self.offered_rides.append(ride)
         for wanted_ride in self.wanted_rides:
             if (
@@ -27,9 +36,27 @@ class RideSharingServer(object):
                 and wanted_ride.get_date() == ride.get_date()
                 and wanted_ride.get_passengers() == ride.get_passengers()
             ):
-                wanted_ride.get_user().notify_has_ride(ride)
+                try:
+                    passenger_uri = wanted_ride.get_user()
+                    self.get_user_object(passenger_uri).notify_offer_ride(
+                        ride.get_ride_json()
+                    )
 
-    def add_wanted_ride(self, ride):
+                    driver_uri = ride.get_user()
+                    self.get_user_object(driver_uri).notify_want_ride(
+                        wanted_ride.get_ride_json()
+                    )
+                except:
+                    pass
+
+    def add_wanted_ride(self, ride_json):
+        ride = Ride(
+            user_uri=ride_json["user"],
+            from_=ride_json["location"][0],
+            to=ride_json["location"][1],
+            date=ride_json["date"],
+            passengers=ride_json["passengers"],
+        )
         self.wanted_rides.append(ride)
         for offered_ride in self.offered_rides:
             if (
@@ -37,19 +64,19 @@ class RideSharingServer(object):
                 and offered_ride.get_date() == ride.get_date()
                 and offered_ride.get_passengers() == ride.get_passengers()
             ):
-                offered_ride.get_user().notify_has_ride(ride)
+                try:
+                    driver_uri = offered_ride.get_user()
+                    self.get_user_object(driver_uri).notify_want_ride(
+                        ride.get_ride_json()
+                    )
 
-    def test(self):
-        print("Hi I am avalialble")
+                    passenger_uri = ride.get_user()
+                    self.get_user_object(passenger_uri).notify_offer_ride(
+                        offered_ride.get_ride_json()
+                    )
+                except:
+                    pass
 
-    def test_clients(self):
-        for user in self.users:
-            try:
-                user_object = Pyro5.api.Proxy(user)
-                print(user_object.get_name())
-                user_object.test_client()
-            except:
-                pass
 
 def main():
     Pyro5.api.Daemon.serveSimple(

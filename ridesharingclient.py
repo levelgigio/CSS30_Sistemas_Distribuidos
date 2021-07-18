@@ -5,21 +5,21 @@ from Crypto.PublicKey import RSA
 from Crypto import Random
 from ride import Ride
 import threading
+import time
+
 
 @Pyro5.api.expose
 class RideSharingClient(object):
     def __init__(self):
-        self.name = None
-        self.phone = None
-        self.key_pair = None
+        # self.name = None
+        # self.phone = None
+        # self.key_pair = None
 
         daemon = Pyro5.api.Daemon()  # make a Pyro daemon
         self.uri = daemon.register(self)  # register the greeting maker as a Pyro object
         threading.Thread(target=daemon.requestLoop).start()
         self.server_uri = "PYRONAME:sd.ridesharingapp"
-        Pyro5.api.Proxy("PYRONAME:sd.ridesharingapp")
 
-    
     def create_account(self, name, phone):
         self.name = name
         self.phone = phone
@@ -39,37 +39,80 @@ class RideSharingClient(object):
     def get_public_key(self):
         return self.key_pair.publickey()
 
-    @Pyro5.api.expose
     def get_info(self):
         return (self.name, self.phone, self.public_key)
 
     def sign_up(self):
-        server = Pyro5.api.Proxy(self.server_uri)
-        server.add_user(self.uri)
+        self.get_server().add_user(self.uri)
 
-    def offer_ride(self, server, from_, to, date, passengers):
-        ride = Ride(self, from_, to, date, passengers)
-        server.add_offered_ride(ride)
+    def get_server(self):
+        return Pyro5.api.Proxy(self.server_uri)
 
-    def request_ride(self, server, from_, to, date, passengers):
-        ride = Ride(self, from_, to, date, passengers)
-        server.add_wanted_ride(ride)
+    def get_user_object(self, user_uri):
+        return Pyro5.api.Proxy(user_uri)
 
-    def notify_has_ride(self, ride):
+    def offer_ride(self, from_, to, date, passengers):
+        ride = Ride(self.uri, from_, to, date, passengers)
+        self.get_server().add_offered_ride(ride.get_ride_json())
+
+    def request_ride(self, from_, to, date, passengers):
+        ride = Ride(self.uri, from_, to, date, passengers)
+        self.get_server().add_wanted_ride(ride.get_ride_json())
+
+    def notify_offer_ride(self, ride_json):
+        ride = Ride(
+            user_uri=ride_json["user"],
+            from_=ride_json["location"][0],
+            to=ride_json["location"][1],
+            date=ride_json["date"],
+            passengers=ride_json["passengers"],
+        )
         print(
-            "Usuario {0} tem uma carona para {1} dia {2} que voce quer".format(
-                ride.get_user().get_name(), ride.get_location()[1], ride.get_date()
+            "Motorista {0} tem uma carona para {1} dia {2} que voce quer".format(
+                self.get_user_object(ride.get_user()).get_name(),
+                ride.get_location()[1],
+                ride.get_date(),
+            )
+        )
+
+    def notify_want_ride(self, ride_json):
+        ride = Ride(
+            user_uri=ride_json["user"],
+            from_=ride_json["location"][0],
+            to=ride_json["location"][1],
+            date=ride_json["date"],
+            passengers=ride_json["passengers"],
+        )
+        print(
+            "Passageiro {0} busca uma carona para {1} dia {2} que voce tem".format(
+                self.get_user_object(ride.get_user()).get_name(),
+                ride.get_location()[1],
+                ride.get_date(),
             )
         )
 
     # def test_server_availability(self, server):
     #     server.test()
 
-    def test_client(self):
-        print(self.name)
-
+    # def test_client(self):
+    #     print(self.name)
 
 
 user = RideSharingClient()
-user.create_account("Giovanni", "Forastieri")
+user.create_account("Yoshio Motorista", "4199999999")
 user.sign_up()
+user.offer_ride("curitiba", "barra mansa", "18/07/2021", 4)
+
+user_2 = RideSharingClient()
+user_2.create_account("Giovanni Passageiro", "2199219312")
+user_2.sign_up()
+user_2.request_ride("barra mansa", "campo grande", "18/07/2021", 1)
+time.sleep(5)
+user_2.request_ride("curitiba", "barra mansa", "18/07/2021", 4)
+
+user_3 = RideSharingClient()
+user_3.create_account("Ian Motorista", "2199219312")
+user_3.sign_up()
+user_3.offer_ride("porto velho", "campo grande", "18/07/2021", 1)
+time.sleep(5)
+user_3.offer_ride("barra mansa", "campo grande", "18/07/2021", 1)
