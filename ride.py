@@ -1,4 +1,4 @@
-class Ride():
+class Ride:
     def __init__(self, user, from_, to, date, passengers):
         self.__user = user
         self.__from = from_
@@ -8,7 +8,7 @@ class Ride():
 
     def get_location():
         return {self.__from, self.__to}
-    
+
     def get_date():
         return {self.__date}
 

@@ -1,36 +1,38 @@
-from __future__ import print_function
-import sys
 import Pyro5.api
 from Pyro5.compatibility import Pyro4
 from Crypto.Hash import SHA256
 from Crypto.PublicKey import RSA
 from Crypto import Random
 from ride import Ride
+import threading
 
-# if sys.version_info<(3,0):
-#     input = raw_input
 @Pyro5.api.expose
-# @Pyro5.api.behavior(instance_mode="single")
 class RideSharingClient(object):
-    def __init__(self, name, phone):
+    def __init__(self):
+        self.name = None
+        self.phone = None
+        self.key_pair = None
+        self.uri = None
+    
+    def create_account(self, name, phone):
         self.name = name
         self.phone = phone
         self.key_pair = self.generate_new_key_pair()
+
+    def set_uri(self, uri):
+        self.uri = uri
 
     def generate_new_key_pair(self):
         random_seed = Random.new().read
         keyPair = RSA.generate(1024, random_seed)
         return keyPair
 
-    @Pyro5.api.expose
     def get_name(self):
         return self.name
 
-    @Pyro5.api.expose
     def get_phone(self):
         return self.phone
 
-    @Pyro5.api.expose
     def get_public_key(self):
         return self.key_pair.publickey()
 
@@ -39,32 +41,39 @@ class RideSharingClient(object):
         return (self.name, self.phone, self.public_key)
 
     def sign_up(self, server):
-        server.add_user(self)
+        server.add_user(self.uri)
 
-    @Pyro5.api.expose
     def offer_ride(self, server, from_, to, date, passengers):
         ride = Ride(self, from_, to, date, passengers)
         server.add_offered_ride(ride)
 
-    @Pyro5.api.expose
     def request_ride(self, server, from_, to, date, passengers):
         ride = Ride(self, from_, to, date, passengers)
         server.add_wanted_ride(ride)
 
-    @Pyro5.api.expose
     def notify_has_ride(self, ride):
-        print("Usuario {0} tem uma carona para {1} dia {2} que voce quer".format(ride.get_user().get_name(), ride.get_location()[1], ride.get_date()))
+        print(
+            "Usuario {0} tem uma carona para {1} dia {2} que voce quer".format(
+                ride.get_user().get_name(), ride.get_location()[1], ride.get_date()
+            )
+        )
+
+    # def test_server_availability(self, server):
+    #     server.test()
+
+    # def test_client(self):
+    #     print(self.name)
 
 
-sys.excepthook = Pyro4.util.excepthook
-# uri = input("Enter the uri of the warehouse: ").strip()
-# warehouse = Pyro5.api.Proxy(uri)
+
+user = RideSharingClient()
+daemon = Pyro5.api.Daemon()  # make a Pyro daemon
+uri = daemon.register(user)  # register the greeting maker as a Pyro object
+threading.Thread(target=daemon.requestLoop).start()
+user.set_uri(uri)
+user.create_account("Giovanni", "Forastieri")
 server = Pyro5.api.Proxy("PYRONAME:sd.ridesharingapp")
-giovanni = RideSharingClient("Giovanni", "41991810172")
-yoshio = RideSharingClient("Yoshio", "41998956698")
-giovanni.sign_up(server)
-yoshio.sign_up(server)
+print(user.get_name())
+user.sign_up(server)
+server.test_clients()
 
-# yoshio.offer_ride(server, "curitiba", "barra mansa", "18/07/2021", 4)
-# giovanni.request_ride(server, "barra mansa", "campo grande", "18/07/2021", 1)
-# giovanni.request_ride(server, "curitiba", "barra mansa", "18/07/2021", 4)

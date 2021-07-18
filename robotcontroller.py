@@ -3,7 +3,7 @@ class RobotController(object):
         self.robotStates = []
 
     def moveDemo(self, motionTime):
-        stopTime = datetime.datetime.now() + datetime.timedelta(0,motionTime)
+        stopTime = datetime.datetime.now() + datetime.timedelta(0, motionTime)
         while datetime.datetime.now() < stopTime:
             print("Robot is moving...")
             time.sleep(1)
@@ -26,16 +26,12 @@ class RobotController(object):
         print("server: callbacks done")
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     robotController = RobotController()
-    if os.name == 'posix':
-        daemon = Pyro4.Daemon(host="192.168.1.104", port=8000); 
+    if os.name == "posix":
+        daemon = Pyro4.Daemon(host="192.168.1.104", port=8000)
     else:
-        daemon = Pyro4.Daemon(host="localhost", port=8000);
+        daemon = Pyro4.Daemon(host="localhost", port=8000)
     Pyro4.Daemon.serveSimple(
-    { robotController: "robotController"},
-    ns=False,
-    daemon=daemon,
-    verbose = True
+        {robotController: "robotController"}, ns=False, daemon=daemon, verbose=True
     )

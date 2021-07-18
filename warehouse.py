@@ -1,6 +1,7 @@
 from __future__ import print_function
 import Pyro5.api
 
+
 @Pyro5.api.expose
 @Pyro5.api.behavior(instance_mode="single")
 class Warehouse(object):
@@ -21,10 +22,13 @@ class Warehouse(object):
 
 def main():
     Pyro5.api.Daemon.serveSimple(
-            {
-                Warehouse: "example.warehouse"
-            },
-            ns=True, host="localhost", port=9091, verbose=True)
+        {Warehouse: "example.warehouse"},
+        ns=True,
+        host="localhost",
+        port=9091,
+        verbose=True,
+    )
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     main()

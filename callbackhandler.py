@@ -1,12 +1,14 @@
 class CallbackHandler(object):
     def crash(self):
-        a=1
-        b=0
-        return a//b
+        a = 1
+        b = 0
+        return a // b
+
     def call1(self):
         print("callback 1 received from server!")
         print("going to crash - you won't see the exception here, only on the server")
         return self.crash()
+
     @Pyro4.callback
     def call2(self):
         print("callback 2 received from server!")

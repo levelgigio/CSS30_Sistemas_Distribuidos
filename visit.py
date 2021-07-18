@@ -7,6 +7,7 @@ from Pyro5.compatibility import Pyro4
 # if sys.version_info<(3,0):
 #     input = raw_input
 
+
 class Person(object):
     def __init__(self, name):
         self.name = name
