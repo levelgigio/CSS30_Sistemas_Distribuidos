@@ -12,15 +12,18 @@ class RideSharingClient(object):
         self.name = None
         self.phone = None
         self.key_pair = None
-        self.uri = None
+
+        daemon = Pyro5.api.Daemon()  # make a Pyro daemon
+        self.uri = daemon.register(self)  # register the greeting maker as a Pyro object
+        threading.Thread(target=daemon.requestLoop).start()
+        self.server_uri = "PYRONAME:sd.ridesharingapp"
+        Pyro5.api.Proxy("PYRONAME:sd.ridesharingapp")
+
     
     def create_account(self, name, phone):
         self.name = name
         self.phone = phone
         self.key_pair = self.generate_new_key_pair()
-
-    def set_uri(self, uri):
-        self.uri = uri
 
     def generate_new_key_pair(self):
         random_seed = Random.new().read
@@ -40,7 +43,8 @@ class RideSharingClient(object):
     def get_info(self):
         return (self.name, self.phone, self.public_key)
 
-    def sign_up(self, server):
+    def sign_up(self):
+        server = Pyro5.api.Proxy(self.server_uri)
         server.add_user(self.uri)
 
     def offer_ride(self, server, from_, to, date, passengers):
@@ -61,19 +65,11 @@ class RideSharingClient(object):
     # def test_server_availability(self, server):
     #     server.test()
 
-    # def test_client(self):
-    #     print(self.name)
+    def test_client(self):
+        print(self.name)
 
 
 
 user = RideSharingClient()
-daemon = Pyro5.api.Daemon()  # make a Pyro daemon
-uri = daemon.register(user)  # register the greeting maker as a Pyro object
-threading.Thread(target=daemon.requestLoop).start()
-user.set_uri(uri)
 user.create_account("Giovanni", "Forastieri")
-server = Pyro5.api.Proxy("PYRONAME:sd.ridesharingapp")
-print(user.get_name())
-user.sign_up(server)
-server.test_clients()
-
+user.sign_up()

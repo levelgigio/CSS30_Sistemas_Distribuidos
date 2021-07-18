@@ -17,6 +17,7 @@ class RideSharingServer(object):
     def add_user(self, user):
         self.users.append(user)
         print("Created user {0}.".format(user))
+        self.test_clients()
 
     def add_offered_ride(self, ride):
         self.offered_rides.append(ride)
