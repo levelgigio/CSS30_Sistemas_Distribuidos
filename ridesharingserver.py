@@ -9,6 +9,7 @@ class RideSharingServer(object):
         self.users = []
         self.rides = []
         # self.offered_rides = []
+        self.current_id = 1000
 
     def get_offered_rides(self):
         return [ride.get_ride_json() for ride in self.rides if ride.get_is_offered()]
@@ -69,8 +70,10 @@ class RideSharingServer(object):
             to=ride_json["location"][1],
             date=ride_json["date"],
             passengers=ride_json["passengers"],
-            offered=1,
+            offered=ride_json["offered"],
+            ride_id=self.current_id,
         )
+        self.current_id = self.current_id + 1
         self.print_ride(offered_ride.get_ride_json())
         self.rides.append(offered_ride)
         for ride in self.rides:
@@ -92,6 +95,7 @@ class RideSharingServer(object):
                     )
                 except:
                     pass
+        return offered_ride.get_id()
 
     def add_wanted_ride(self, ride_json):
         wanted_ride = Ride(
@@ -100,8 +104,10 @@ class RideSharingServer(object):
             to=ride_json["location"][1],
             date=ride_json["date"],
             passengers=ride_json["passengers"],
-            offered=0,
+            offered=ride_json["offered"],
+            ride_id=self.current_id,
         )
+        self.current_id = self.current_id + 1
         self.print_ride(wanted_ride.get_ride_json())
         self.rides.append(wanted_ride)
         for ride in self.rides:
@@ -123,6 +129,11 @@ class RideSharingServer(object):
                     )
                 except:
                     pass
+
+        return wanted_ride.get_id()
+
+    def cancel_requested_ride(self, ride_id):
+        self.rides.remove(next(ride for ride in self.rides if ride.get_id() == ride_id))
 
 
 def main():

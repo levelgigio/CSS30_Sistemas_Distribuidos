@@ -19,6 +19,7 @@ class RideSharingClient(object):
         self.uri = daemon.register(self)  # register the greeting maker as a Pyro object
         threading.Thread(target=daemon.requestLoop).start()
         self.server_uri = "PYRONAME:sd.ridesharingapp"
+        self.my_rides = []
 
     def create_account(self, name, phone):
         self.name = name
@@ -92,18 +93,27 @@ class RideSharingClient(object):
         return Pyro5.api.Proxy(user_uri)
 
     def offer_ride(self, from_, to, date, passengers):
-        ride = Ride(self.uri, from_, to, date, passengers)
-        self.get_server().add_offered_ride(ride.get_ride_json())
+        ride = Ride(self.uri, from_, to, date, passengers, 1)
+        ride_id = self.get_server().add_offered_ride(ride.get_ride_json())
+        self.my_rides.append(ride_id)
+        print(
+            "A corrida oferecida de {0} para {1} para o dia {2} com {3} passageiros tem o id de {4}".format(
+                from_, to, date, passengers, ride_id
+            )
+        )
 
     def request_ride(self, from_, to, date, passengers):
-        ride = Ride(self.uri, from_, to, date, passengers)
-        self.get_server().add_wanted_ride(ride.get_ride_json())
+        ride = Ride(self.uri, from_, to, date, passengers, 0)
+        ride_id = self.get_server().add_wanted_ride(ride.get_ride_json())
+        self.my_rides.append(ride_id)
+        print(
+            "A corrida requisitada de {0} para {1} para o dia {2} com {3} passageiros tem o id de {4}".format(
+                from_, to, date, passengers, ride_id
+            )
+        )
 
-    # def test_server_availability(self, server):
-    #     server.test()
-
-    # def test_client(self):
-    #     print(self.name)
+    def cancel_requested_ride(self, ride_id):
+        self.get_server().cancel_requested_ride(ride_id)
 
 
 user = RideSharingClient()
@@ -111,12 +121,13 @@ user.create_account("Yoshio Motorista", "4199999999")
 user.sign_up()
 user.offer_ride("curitiba", "barra mansa", "18/07/2021", 4)
 
-# user_2 = RideSharingClient()
-# user_2.create_account("Giovanni Passageiro", "2199219312")
-# user_2.sign_up()
+user_2 = RideSharingClient()
+user_2.create_account("Giovanni Passageiro", "2199219312")
+user_2.sign_up()
 # user_2.request_ride("barra mansa", "campo grande", "18/07/2021", 1)
 # time.sleep(5)
-# user_2.request_ride("curitiba", "barra mansa", "18/07/2021", 4)
+# user.cancel_requested_ride(1000)
+user_2.request_ride("curitiba", "barra mansa", "18/07/2021", 4)
 
 # user_3 = RideSharingClient()
 # user_3.create_account("Ian Motorista", "2199219312")

@@ -7,6 +7,7 @@ class Ride:
         date=None,
         passengers=None,
         offered=None,
+        ride_id=None,
     ):
         self.__user_uri = user_uri
         self.__from = from_
@@ -14,6 +15,7 @@ class Ride:
         self.__date = date
         self.__passengers = passengers
         self.__offered = offered
+        self.__ride_id = ride_id
 
     def get_location(self):
         return [self.__from, self.__to]
@@ -26,6 +28,9 @@ class Ride:
 
     def get_user(self):
         return self.__user_uri
+
+    def get_id(self):
+        return self.__ride_id
 
     def get_is_offered(self):
         return self.__offered
