@@ -98,21 +98,9 @@ class RideSharingClient(object):
     #     print(self.name)
 
 
-user = RideSharingClient()
-user.create_account("Yoshio Motorista", "4199999999")
-user.sign_up()
-user.offer_ride("curitiba", "barra mansa", "18/07/2021", 4)
-
-# user_2 = RideSharingClient()
-# user_2.create_account("Giovanni Passageiro", "2199219312")
-# user_2.sign_up()
-# user_2.request_ride("barra mansa", "campo grande", "18/07/2021", 1)
-# time.sleep(5)
-# user_2.request_ride("curitiba", "barra mansa", "18/07/2021", 4)
-
-# user_3 = RideSharingClient()
-# user_3.create_account("Ian Motorista", "2199219312")
-# user_3.sign_up()
-# user_3.offer_ride("porto velho", "campo grande", "18/07/2021", 1)
-# time.sleep(5)
-# user_3.offer_ride("barra mansa", "campo grande", "18/07/2021", 1)
+user_2 = RideSharingClient()
+user_2.create_account("Giovanni Passageiro", "2199219312")
+user_2.sign_up()
+user_2.request_ride("barra mansa", "campo grande", "18/07/2021", 1)
+time.sleep(5)
+user_2.request_ride("curitiba", "barra mansa", "18/07/2021", 4)
