@@ -35,6 +35,9 @@ class Ride:
     def get_is_offered(self):
         return self.__offered
 
+    def set_id(self, id):
+        self.__ride_id = id
+
     def get_ride_json(self):
         return {
             "location": self.get_location(),
@@ -42,6 +45,7 @@ class Ride:
             "passengers": self.get_passengers(),
             "user": self.get_user(),
             "offered": self.get_is_offered(),
+            "ride_id": self.get_id(),
         }
 
     # def create_ride_from_json(self, ride_json):

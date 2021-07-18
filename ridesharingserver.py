@@ -8,7 +8,6 @@ class RideSharingServer(object):
     def __init__(self):
         self.users = []
         self.rides = []
-        # self.offered_rides = []
         self.current_id = 1000
 
     def get_offered_rides(self):
@@ -43,23 +42,26 @@ class RideSharingServer(object):
             date=ride_json["date"],
             passengers=ride_json["passengers"],
             offered=ride_json["offered"],
+            ride_id=ride_json["ride_id"],
         )
         if ride.get_is_offered():
             print(
-                "Motorista {0} tem uma carona para {1} dia {2} com {3} passageiros".format(
+                "Motorista {0} tem uma carona para {1} dia {2} com {3} passageiros (id {4})".format(
                     self.get_user_object(ride.get_user()).get_name(),
                     ride.get_location()[1],
                     ride.get_date(),
                     ride.get_passengers(),
+                    ride.get_id(),
                 )
             )
         else:
             print(
-                "Cliente {0} quer uma carona para {1} dia {2} para {3} passageiros".format(
+                "Cliente {0} quer uma carona para {1} dia {2} para {3} passageiros (id {4})".format(
                     self.get_user_object(ride.get_user()).get_name(),
                     ride.get_location()[1],
                     ride.get_date(),
                     ride.get_passengers(),
+                    ride.get_id(),
                 )
             )
 
@@ -95,6 +97,7 @@ class RideSharingServer(object):
                     )
                 except:
                     pass
+
         return offered_ride.get_id()
 
     def add_wanted_ride(self, ride_json):
@@ -133,7 +136,10 @@ class RideSharingServer(object):
         return wanted_ride.get_id()
 
     def cancel_ride(self, ride_id):
-        self.rides.remove(next(ride for ride in self.rides if ride.get_id() == ride_id))
+        self.rides.remove(
+            next(ride for ride in self.rides if ride.get_id() == int(ride_id))
+        )
+        print("Corrida {0} cancelada".format(ride_id))
 
 
 def main():
