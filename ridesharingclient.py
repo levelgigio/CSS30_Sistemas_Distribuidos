@@ -56,7 +56,7 @@ class RideSharingClient(object):
             for ride in rides:
                 self.print_ride(ride)
         else:
-            print("No ride found")
+            print("Nenhuma corrida encontrada")
 
     def print_ride(self, ride_json):
         ride = Ride(
@@ -112,26 +112,48 @@ class RideSharingClient(object):
             )
         )
 
-    def cancel_requested_ride(self, ride_id):
-        self.get_server().cancel_requested_ride(ride_id)
+    def cancel_ride(self, ride_id):
+        self.get_server().cancel_ride(ride_id)
 
 
 user = RideSharingClient()
-user.create_account("Yoshio Motorista", "4199999999")
+print("Crie sua conta")
+name = input("Qual seu nome? ")
+phone = input("Qual seu telefone? ")
+user.create_account(name, phone)
 user.sign_up()
-user.offer_ride("curitiba", "barra mansa", "18/07/2021", 4)
 
-user_2 = RideSharingClient()
-user_2.create_account("Giovanni Passageiro", "2199219312")
-user_2.sign_up()
-# user_2.request_ride("barra mansa", "campo grande", "18/07/2021", 1)
-# time.sleep(5)
-# user.cancel_requested_ride(1000)
-user_2.request_ride("curitiba", "barra mansa", "18/07/2021", 4)
+while True:
+    print("O que voce quer fazer?")
+    print("o - para oferecer uma corrida")
+    print("r - para requisitar uma corrida")
+    print("b - para buscar uma corrida")
+    print("c - para cancelar uma corrida")
+    command = input("Entre com o comando: ")
+    if command == 'o':
+        from_ = input("Partindo de: ")
+        to = input("Para: ")
+        date = input("Na data de (use o formato DD/MM/YYYY: ")
+        passengers = input("Para quantos passageiros? ")
+        user.offer_ride(from_, to, date, passengers)
 
-# user_3 = RideSharingClient()
-# user_3.create_account("Ian Motorista", "2199219312")
-# user_3.sign_up()
-# user_3.offer_ride("porto velho", "campo grande", "18/07/2021", 1)
-# time.sleep(5)
-# user_3.offer_ride("barra mansa", "campo grande", "18/07/2021", 1)
+    elif command == 'r':
+        from_ = input("Partindo de: ")
+        to = input("Para: ")
+        date = input("Na data de (use o formato DD/MM/YYYY: ")
+        passengers = input("Para quantos passageiros? ")
+        user.request_ride(from_, to, date, passengers)
+    
+    elif command == 'b':
+        from_ = input("Partindo de: ")
+        to = input("Para: ")
+        date = input("Na data de (use o formato DD/MM/YYYY: ")
+        passengers = input("Para quantos passageiros? ")
+        user.check_if_ride_exists(from_, to, date, passengers)
+    
+    elif command == 'c':
+        ride_id = input("Id da corrida a ser cancelada: ")
+        user.cancel_ride(ride_id)
+
+    else:
+        print("Comando invalido")

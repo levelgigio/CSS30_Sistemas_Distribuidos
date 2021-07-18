@@ -132,7 +132,7 @@ class RideSharingServer(object):
 
         return wanted_ride.get_id()
 
-    def cancel_requested_ride(self, ride_id):
+    def cancel_ride(self, ride_id):
         self.rides.remove(next(ride for ride in self.rides if ride.get_id() == ride_id))
 
 
