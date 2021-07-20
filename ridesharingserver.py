@@ -177,9 +177,10 @@ class RideSharingServer(object):
                 next(ride for ride in self.rides if ride.get_id() == int(ride_id))
             )
             print("Corrida {0} cancelada".format(ride_id))
+            return 1
         except:
             print("Corrida {0} nao existe e nao pode ser cancelada".format(ride_id))
-
+            return 0
 
 def main():
     Pyro5.api.Daemon.serveSimple(

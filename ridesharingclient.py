@@ -139,11 +139,13 @@ class RideSharingClient(object):
             print("Não foi possível cadastrar a corrida a ser requisitada.")
 
     def cancel_ride(self, ride_id):
-        self.get_server().cancel_ride(ride_id)
-        self.my_rides.remove(
-            next(ride for ride in self.my_rides if ride.get_id() == int(ride_id))
-        )
-        print("Corrida {0} cancelada".format(ride_id))
+        if self.get_server().cancel_ride(ride_id) == 1:
+            self.my_rides.remove(
+                next(ride for ride in self.my_rides if ride.get_id() == int(ride_id))
+            )
+            print("Corrida {0} cancelada".format(ride_id))
+        else:
+            print("Corrida {0} nao existe e nao pode ser cancelada".format(ride_id))
 
     def print_my_rides(self):
         if len(self.my_rides):
