@@ -14,7 +14,6 @@ class RideSharingClient(object):
         daemon = Pyro5.api.Daemon()  # make a Pyro daemon
         self.uri = daemon.register(self)  # register the greeting maker as a Pyro object
         threading.Thread(target=daemon.requestLoop).start()
-        self.server_uri = "PYRONAME:sd.ridesharingapp"
         self.my_rides = []
 
     def create_account(self, name, phone):
@@ -93,8 +92,9 @@ class RideSharingClient(object):
             )
 
     def get_server(self):
-        #TODO: get server
-        return Pyro5.api.Proxy(self.server_uri)
+        nameserver = Pyro5.api.locate_ns()
+        uri = nameserver.lookup("sd.ridesharingapp")
+        return Pyro5.api.Proxy(uri)
 
     def get_user_object(self, user_uri):
         return Pyro5.api.Proxy(user_uri)
