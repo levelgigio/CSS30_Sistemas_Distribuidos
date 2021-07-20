@@ -21,7 +21,6 @@ from Crypto import Random
 #     print( "The signature is not authentic.")
 
 
-
 # Criou-se uma semente randômica para gerar o par
 # chave privada/pública.
 random_seed = Random.new().read
@@ -65,9 +64,9 @@ verifier = pss.new(pubKey)
 
 try:
     verifier.verify(hashB, digitalSign)
-    print( "The signature is authentic.")
+    print("The signature is authentic.")
 except (ValueError, TypeError):
-    print( "The signature is not authentic.")
+    print("The signature is not authentic.")
 try:
     verifier.verify(hashC, digitalSign)
     print("The signature is authentic.")

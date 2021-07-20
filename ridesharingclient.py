@@ -7,6 +7,7 @@ import threading
 import os
 from Crypto.Signature import pss
 
+
 @Pyro5.api.expose
 class RideSharingClient(object):
     def __init__(self):
@@ -43,7 +44,7 @@ class RideSharingClient(object):
 
     def sign_up(self):
         publickey = self.get_public_key()
-        publickey = publickey.export_key('PEM')
+        publickey = publickey.export_key("PEM")
         self.get_server().sign_up(
             self.get_uri(), self.get_name(), self.get_phone(), publickey
         )
@@ -70,22 +71,24 @@ class RideSharingClient(object):
         )
         if ride.get_is_offered():
             print(
-                "Motorista {0} tem uma carona para {1} dia {2} com {3} passageiros (id {4}) \n".format(
+                "Motorista {0} tem uma carona de {5} para {1} dia {2} com {3} passageiros (id {4}) \n".format(
                     self.get_user_object(ride.get_user()).get_name(),
                     ride.get_location()[1],
                     ride.get_date(),
                     ride.get_passengers(),
                     ride.get_id(),
+                    ride.get_location()[0],
                 )
             )
         else:
             print(
-                "Cliente {0} quer uma carona para {1} dia {2} para {3} passageiros (id {4})\n".format(
+                "Cliente {0} quer uma carona de {5} para {1} dia {2} para {3} passageiros (id {4})\n".format(
                     self.get_user_object(ride.get_user()).get_name(),
                     ride.get_location()[1],
                     ride.get_date(),
                     ride.get_passengers(),
                     ride.get_id(),
+                    ride.get_location()[0],
                 )
             )
 
@@ -101,8 +104,10 @@ class RideSharingClient(object):
         message = message.encode("utf-8")
         hash = SHA256.new(message)
         digital_sign = pss.new(self.key_pair).sign(hash)
-        ride_id = self.get_server().add_offered_ride(ride.get_ride_json(), digital_sign, message)
-        if (ride_id != 0):
+        ride_id = self.get_server().add_offered_ride(
+            ride.get_ride_json(), digital_sign, message
+        )
+        if ride_id != 0:
             ride.set_id(ride_id)
             self.my_rides.append(ride)
             print(
@@ -119,8 +124,10 @@ class RideSharingClient(object):
         message = message.encode("utf-8")
         hash = SHA256.new(message)
         digital_sign = pss.new(self.key_pair).sign(hash)
-        ride_id = self.get_server().add_wanted_ride(ride.get_ride_json(), digital_sign, message)
-        if (ride_id != 0):
+        ride_id = self.get_server().add_wanted_ride(
+            ride.get_ride_json(), digital_sign, message
+        )
+        if ride_id != 0:
             ride.set_id(ride_id)
             self.my_rides.append(ride)
             print(
@@ -130,7 +137,6 @@ class RideSharingClient(object):
             )
         else:
             print("Não foi possível cadastrar a corrida a ser requisitada.")
-
 
     def cancel_ride(self, ride_id):
         self.get_server().cancel_ride(ride_id)

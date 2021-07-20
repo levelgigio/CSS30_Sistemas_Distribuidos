@@ -6,6 +6,7 @@ from Crypto.Hash import SHA256
 from Crypto.Signature import pss
 import base64
 
+
 @Pyro5.api.expose
 @Pyro5.api.behavior(instance_mode="single")
 class RideSharingServer(object):
@@ -24,7 +25,6 @@ class RideSharingServer(object):
         user = User(uri, username, phone, public_key)
         self.users.append(user)
         print("Created user {}.".format(username))
-
 
     def check_if_ride_exists(self, user_uri, from_, to, date, passengers):
         possible_rides = [
@@ -53,22 +53,24 @@ class RideSharingServer(object):
         )
         if ride.get_is_offered():
             print(
-                "Motorista {0} tem uma carona para {1} dia {2} com {3} passageiros (id {4})".format(
+                "Motorista {0} tem uma carona de {5} para {1} dia {2} com {3} passageiros (id {4})".format(
                     self.get_user_object(ride.get_user()).get_name(),
                     ride.get_location()[1],
                     ride.get_date(),
                     ride.get_passengers(),
                     ride.get_id(),
+                    ride.get_location()[0],
                 )
             )
         else:
             print(
-                "Cliente {0} quer uma carona para {1} dia {2} para {3} passageiros (id {4})".format(
+                "Cliente {0} quer uma carona de {5} para {1} dia {2} para {3} passageiros (id {4})".format(
                     self.get_user_object(ride.get_user()).get_name(),
                     ride.get_location()[1],
                     ride.get_date(),
                     ride.get_passengers(),
                     ride.get_id(),
+                    ride.get_location()[0],
                 )
             )
 
@@ -90,7 +92,6 @@ class RideSharingServer(object):
         except (ValueError, TypeError):
             print("The signature is not authentic.")
             return 0
-
 
     def add_offered_ride(self, ride_json, digital_sign, message):
         result = self.authenticate_signature(ride_json["user"], digital_sign, message)
@@ -171,10 +172,13 @@ class RideSharingServer(object):
         return wanted_ride.get_id()
 
     def cancel_ride(self, ride_id):
-        self.rides.remove(
-            next(ride for ride in self.rides if ride.get_id() == int(ride_id))
-        )
-        print("Corrida {0} cancelada".format(ride_id))
+        try:
+            self.rides.remove(
+                next(ride for ride in self.rides if ride.get_id() == int(ride_id))
+            )
+            print("Corrida {0} cancelada".format(ride_id))
+        except:
+            print("Corrida {0} nao existe e nao pode ser cancelada".format(ride_id))
 
 
 def main():

@@ -1,11 +1,5 @@
 class User:
-    def __init__(
-        self,
-        uri=None,
-        username=None,
-        phone=None,
-        public_key=None
-    ):
+    def __init__(self, uri=None, username=None, phone=None, public_key=None):
         self.__uri = uri
         self.__username = username
         self.__phone = phone
