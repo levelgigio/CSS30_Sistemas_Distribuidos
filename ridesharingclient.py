@@ -5,7 +5,7 @@ from Crypto import Random
 from ride import Ride
 import threading
 import os
-
+from Crypto.Signature import pss
 
 @Pyro5.api.expose
 class RideSharingClient(object):
@@ -26,6 +26,9 @@ class RideSharingClient(object):
         keyPair = RSA.generate(1024, random_seed)
         return keyPair
 
+    def get_uri(self):
+        return self.uri
+
     def get_name(self):
         return self.name
 
@@ -36,11 +39,13 @@ class RideSharingClient(object):
         return self.key_pair.publickey()
 
     def get_info(self):
-        return (self.name, self.phone, self.public_key)
+        return (self.uri, self.name, self.phone, self.public_key)
 
     def sign_up(self):
+        publickey = self.get_public_key()
+        publickey = publickey.export_key('PEM')
         self.get_server().sign_up(
-            self.get_name(), self.get_phone(), self.get_public_key()
+            self.get_uri(), self.get_name(), self.get_phone(), publickey
         )
 
     def check_if_ride_exists(self, from_, to, date, passengers):
@@ -65,7 +70,7 @@ class RideSharingClient(object):
         )
         if ride.get_is_offered():
             print(
-                "Motorista {0} tem uma carona para {1} dia {2} com {3} passageiros (id {4})".format(
+                "Motorista {0} tem uma carona para {1} dia {2} com {3} passageiros (id {4}) \n".format(
                     self.get_user_object(ride.get_user()).get_name(),
                     ride.get_location()[1],
                     ride.get_date(),
@@ -75,7 +80,7 @@ class RideSharingClient(object):
             )
         else:
             print(
-                "Cliente {0} quer uma carona para {1} dia {2} para {3} passageiros (id {4})".format(
+                "Cliente {0} quer uma carona para {1} dia {2} para {3} passageiros (id {4} \n)".format(
                     self.get_user_object(ride.get_user()).get_name(),
                     ride.get_location()[1],
                     ride.get_date(),
@@ -92,25 +97,40 @@ class RideSharingClient(object):
 
     def offer_ride(self, from_, to, date, passengers):
         ride = Ride(self.uri, from_, to, date, passengers, 1)
-        ride_id = self.get_server().add_offered_ride(ride.get_ride_json())
-        ride.set_id(ride_id)
-        self.my_rides.append(ride)
-        print(
-            "A corrida oferecida de {0} para {1} para o dia {2} com {3} passageiros tem o id de {4}".format(
-                from_, to, date, passengers, ride_id
+        message = "offering ride"
+        message = message.encode("utf-8")
+        hash = SHA256.new(message)
+        digital_sign = pss.new(self.key_pair).sign(hash)
+        ride_id = self.get_server().add_offered_ride(ride.get_ride_json(), digital_sign, message)
+        if (ride_id != 0):
+            ride.set_id(ride_id)
+            self.my_rides.append(ride)
+            print(
+                "A corrida oferecida de {0} para {1} para o dia {2} com {3} passageiros tem o id de {4}".format(
+                    from_, to, date, passengers, ride_id
+                )
             )
-        )
+        else:
+            print("Não foi possível cadastrar a corrida a ser oferecida.")
 
     def request_ride(self, from_, to, date, passengers):
         ride = Ride(self.uri, from_, to, date, passengers, 0)
-        ride_id = self.get_server().add_wanted_ride(ride.get_ride_json())
-        ride.set_id(ride_id)
-        self.my_rides.append(ride)
-        print(
-            "A corrida requisitada de {0} para {1} para o dia {2} com {3} passageiros tem o id de {4}".format(
-                from_, to, date, passengers, ride_id
+        message = "requesting ride"
+        message = message.encode("utf-8")
+        hash = SHA256.new(message)
+        digital_sign = pss.new(self.key_pair).sign(hash)
+        ride_id = self.get_server().add_wanted_ride(ride.get_ride_json(), digital_sign, message)
+        if (ride_id != 0):
+            ride.set_id(ride_id)
+            self.my_rides.append(ride)
+            print(
+                "A corrida requisitada de {0} para {1} para o dia {2} com {3} passageiros tem o id de {4} \n".format(
+                    from_, to, date, passengers, ride_id
+                )
             )
-        )
+        else:
+            print("Não foi possível cadastrar a corrida a ser requisitada.")
+
 
     def cancel_ride(self, ride_id):
         self.get_server().cancel_ride(ride_id)
@@ -144,11 +164,11 @@ while True:
     print("b - para buscar uma corrida")
     print("c - para cancelar uma corrida")
     print("m - minhas corridas")
-    command = input("Entre com o comando: ")
+    command = input("Entre com o comando: \n")
     if command == "o":
         from_ = input("Partindo de: ")
         to = input("Para: ")
-        date = input("Na data de (use o formato DD/MM/YYYY: ")
+        date = input("Na data de (use o formato DD/MM/YYYY): ")
         passengers = input("Para quantos passageiros? ")
         os.system("cls" if os.name == "nt" else "clear")
         print()
@@ -157,7 +177,7 @@ while True:
     elif command == "r":
         from_ = input("Partindo de: ")
         to = input("Para: ")
-        date = input("Na data de (use o formato DD/MM/YYYY: ")
+        date = input("Na data de (use o formato DD/MM/YYYY:)")
         passengers = input("Para quantos passageiros? ")
         os.system("cls" if os.name == "nt" else "clear")
         print()
