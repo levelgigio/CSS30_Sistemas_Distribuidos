@@ -47,12 +47,3 @@ class Ride:
             "offered": self.get_is_offered(),
             "ride_id": self.get_id(),
         }
-
-    # def create_ride_from_json(self, ride_json):
-    #     return Ride(
-    #         ride_json["user"],
-    #         ride_json["location"][0],
-    #         ride_json["location"][1],
-    #         ride_json["date"],
-    #         ride_json["passengers"],
-    #     )

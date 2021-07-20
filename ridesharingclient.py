@@ -93,6 +93,7 @@ class RideSharingClient(object):
             )
 
     def get_server(self):
+        #TODO: get server
         return Pyro5.api.Proxy(self.server_uri)
 
     def get_user_object(self, user_uri):
@@ -185,7 +186,7 @@ while True:
     elif command == "r":
         from_ = input("Partindo de: ")
         to = input("Para: ")
-        date = input("Na data de (use o formato DD/MM/YYYY:)")
+        date = input("Na data de (use o formato DD/MM/YYYY):")
         passengers = input("Para quantos passageiros? ")
         os.system("cls" if os.name == "nt" else "clear")
         print()
@@ -194,7 +195,7 @@ while True:
     elif command == "b":
         from_ = input("Partindo de: ")
         to = input("Para: ")
-        date = input("Na data de (use o formato DD/MM/YYYY: ")
+        date = input("Na data de (use o formato DD/MM/YYYY): ")
         passengers = input("Para quantos passageiros? ")
         os.system("cls" if os.name == "nt" else "clear")
         print()
