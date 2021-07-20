@@ -80,7 +80,7 @@ class RideSharingClient(object):
             )
         else:
             print(
-                "Cliente {0} quer uma carona para {1} dia {2} para {3} passageiros (id {4} \n)".format(
+                "Cliente {0} quer uma carona para {1} dia {2} para {3} passageiros (id {4})\n".format(
                     self.get_user_object(ride.get_user()).get_name(),
                     ride.get_location()[1],
                     ride.get_date(),

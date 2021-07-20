@@ -21,14 +21,8 @@ class RideSharingServer(object):
         return self.users
 
     def sign_up(self, uri, username, phone, public_key):
-        # print(public_key)
-        # pub_key = RSA.import_key(public_key)
-        # public_key = base64.b64decode(public_key["data"])
         user = User(uri, username, phone, public_key)
         self.users.append(user)
-        # self.users.append(
-        #     {"uri": uri, "username": username, "phone": phone, "public_key": public_key}
-        # )
         print("Created user {}.".format(username))
 
 
@@ -78,30 +72,30 @@ class RideSharingServer(object):
                 )
             )
 
-    def add_offered_ride(self, ride_json, digital_sign, message):
-
-        message1 = message["data"]
-        message1 = base64.b64decode(message1)
-        receiver_hash = SHA256.new(message1)
-        ride_uri = ride_json["user"]
+    def authenticate_signature(self, user_uri, digital_sign, message):
+        message_dec = base64.b64decode(message["data"])
+        receiver_hash = SHA256.new(message_dec)
         for user in self.users:
-            if user.get_uri() == ride_json["user"]:
+            if user.get_uri() == user_uri:
                 pub_key = user.get_public_key()
-                pub_key1 = pub_key["data"]
-                pub_keya = base64.b64decode(pub_key1)
-                pub_key2 = RSA.importKey(pub_keya)
+                pub_key_data = base64.b64decode(pub_key["data"])
+                pub_key = RSA.importKey(pub_key_data)
                 break
-
-        # if (pub_key2 != RSA.RsaKey):
-        verifier = pss.new(pub_key2)
+        verifier = pss.new(pub_key)
         try:
-            digital_sign1 = digital_sign["data"]
-            digital_sign2 = base64.b64decode(digital_sign1)
-            verifier.verify(receiver_hash, digital_sign2)
+            digital_sign_data = base64.b64decode(digital_sign["data"])
+            verifier.verify(receiver_hash, digital_sign_data)
             print("The signature is authentic.")
+            return 1
         except (ValueError, TypeError):
             print("The signature is not authentic.")
             return 0
+
+
+    def add_offered_ride(self, ride_json, digital_sign, message):
+        result = self.authenticate_signature(ride_json["user"], digital_sign, message)
+        if result == 0:
+            return result
 
         offered_ride = Ride(
             user_uri=ride_json["user"],
@@ -138,28 +132,9 @@ class RideSharingServer(object):
         return offered_ride.get_id()
 
     def add_wanted_ride(self, ride_json, digital_sign, message):
-
-        message1 = message["data"]
-        message1 = base64.b64decode(message1)
-        receiver_hash = SHA256.new(message1)
-        ride_uri = ride_json["user"]
-        for user in self.users:
-            if user.get_uri() == ride_json["user"]:
-                pub_key = user.get_public_key()
-                pub_key1 = pub_key["data"]
-                pub_keya = base64.b64decode(pub_key1)
-                pub_key2 = RSA.importKey(pub_keya)
-                break
-        # if (pub_key != None):
-        verifier = pss.new(pub_key2)
-        try:
-            digital_sign1 = digital_sign["data"]
-            digital_sign2 = base64.b64decode(digital_sign1)
-            verifier.verify(receiver_hash, digital_sign2)
-            print("The signature is authentic.")
-        except (ValueError, TypeError):
-            print("The signature is not authentic.")
-            return 0
+        result = self.authenticate_signature(ride_json["user"], digital_sign, message)
+        if result == 0:
+            return result
 
         wanted_ride = Ride(
             user_uri=ride_json["user"],
