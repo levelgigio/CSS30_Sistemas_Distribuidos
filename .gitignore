@@ -5,4 +5,4 @@
 .idea/workspace.xml
 __pycache__/ride.cpython-37.pyc
 __pycache__/user.cpython-37.pyc
-.node_modules/*
+node_modules/
