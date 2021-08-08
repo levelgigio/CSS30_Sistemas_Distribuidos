@@ -182,6 +182,7 @@ class RideSharingServer(object):
             print("Corrida {0} nao existe e nao pode ser cancelada".format(ride_id))
             return 0
 
+
 def main():
     Pyro5.api.Daemon.serveSimple(
         {RideSharingServer: "sd.ridesharingapp"},
