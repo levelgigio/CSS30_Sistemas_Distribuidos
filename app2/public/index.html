@@ -1,107 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Client</title>
+  </head>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-</head>
-
-<body>
-  <script src="client.js"></script>
-  <div id="data"></div>
-  <button onclick="get_rides()">get_rides</button>
-  <button onclick="toggleRides()">Toggle Result</button>
-  <div id="rides_result">
-  <p id='response'></p>
-</div>
-
-  <form>
-    <label for="username">Username</label>
-    <input type="text" id="username"><br><br>
-    <label for="from">From</label>
-    <input type="text" id="from"><br><br>
-    <label for="to">To</label>
-    <input type="text" id="to"><br><br>
-    <label for="date">Date</label>
-    <input type="text" id="date"><br><br>
-    <label for="passengers">Passengers</label>
-    <input type="text" id="passengers"><br><br>
-    <label for="offered">Is offered?</label>
-    <input type="checkbox" id="offered" name="scales" checked><br><br>
-    <input type="submit" value="Submit" onclick="offer_or_want()">
-  </form>
-
-  <script>
-function offer_or_want() {
-  var is_offered = document.getElementById('offered').checked;
-  var from = document.getElementById('from').value;
-  var to = document.getElementById('to').value;
-  var date = document.getElementById('date').value;
-  var passengers = document.getElementById('passengers').value;
-  var username = document.getElementById('username').value;
-
-  ride = {
-		"location": [from, to],
-		"date": date,
-		"passengers": passengers,
-		"user": username,
-		"offered": is_offered
-}
-
-    fetch("http://localhost:5000/offer_or_want_ride", {
-  "method": "POST",
-  "headers": {
-    "Content-Type": "application/json"
-  },
-  "body": JSON.stringify(ride)
-})
-.then(response => {
-  console.log(response);
-})
-.catch(err => {
-  console.error(err);
-});
-}
-
-  </script>
-
-
-<script>
-function toggleRides() {
-  var x = document.getElementById("rides_result");
-  if (x.style.display === "none") {
-    x.style.display = "block";
-  } else {
-    x.style.display = "none";
-  }
-}
-
-
-</script>
-
-
-  <script>
-    function get_rides() {
-      fetch("http://localhost:5000/get_rides", {
-  "method": "GET",
-  "headers": {}
-})
-.then(function(response) { return response.json(); })
-.then(function(ride_list) {
-  // use the json
-  // alert(json);
-  // console.log(ride_list);
-  var targetContainer = document.getElementById("response");
-  response_json = "<pre>"+JSON.stringify(ride_list, undefined, 2)+"</pre>";
-
-  targetContainer.innerHTML = response_json
-})
-.catch(err => {
-  console.error(err);
-});
-}
-  </script>
-</body>
-
+  <body>
+    <script src="client.js"></script>
+    <div id="data"></div>
+    <h1>Show available offered rides</h1>
+    <button onclick="toggleRides()">Show</button>
+    <div id="rides_result" display="none">
+      <p id="response"></p>
+    </div>
+    <br/>
+    <h1>Request or offer ride</h1>
+    <form>
+      <label for="username">Username</label>
+      <input type="text" id="username" /><br /><br />
+      <label for="from">From</label>
+      <input type="text" id="from" /><br /><br />
+      <label for="to">To</label>
+      <input type="text" id="to" /><br /><br />
+      <label for="date">Date</label>
+      <input type="text" id="date" /><br /><br />
+      <label for="passengers">Passengers</label>
+      <input type="text" id="passengers" /><br /><br />
+      <label for="offered">Is offered?</label>
+      <input type="checkbox" id="offered" name="scales" checked /><br /><br />
+      <input type="submit" value="Submit" onclick="offer_or_want()" />
+    </form>
+    <br />
+    <h1>Cancel ride</h1>
+    <form>
+      <label for="cancel">Cancel ride id</label>
+      <input type="text" id="cancel" /><br /><br />
+      <input type="submit" value="Submit" onclick="cancel_ride()" />
+    </form>
+  </body>
 </html>

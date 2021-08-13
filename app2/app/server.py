@@ -34,6 +34,12 @@ def offer_ride():
         server.add_wanted_ride(ride_json)
     return "ok"
 
+@app.route('/cancel_ride', methods=['POST'])
+def cancel_ride():
+    id = request.data
+    server.cancel_ride(id)
+    return "ok"
+
 @app.route('/stream')
 def stream():
     def eventStream():
