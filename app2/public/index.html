@@ -7,6 +7,16 @@
   </head>
 
   <body>
+    <div id="signupdiv">
+    <h1>Sign Up</h1>
+    <form>
+      <label for="username">Username</label>
+      <input type="text" id="username" /><br /><br />
+      <input type="button" value="Sign Up" onclick="signup()" />
+    </form>
+  </div>
+
+  <div id="contentdiv">
     <script src="client.js"></script>
     <div id="data"></div>
     <h1>Show available offered rides</h1>
@@ -17,8 +27,6 @@
     <br/>
     <h1>Request or offer ride</h1>
     <form>
-      <label for="username">Username</label>
-      <input type="text" id="username" /><br /><br />
       <label for="from">From</label>
       <input type="text" id="from" /><br /><br />
       <label for="to">To</label>
@@ -29,14 +37,15 @@
       <input type="text" id="passengers" /><br /><br />
       <label for="offered">Is offered?</label>
       <input type="checkbox" id="offered" name="scales" checked /><br /><br />
-      <input type="submit" value="Submit" onclick="offer_or_want()" />
+      <input type="button" value="Submit" onclick="offer_or_want()" />
     </form>
     <br />
     <h1>Cancel ride</h1>
     <form>
       <label for="cancel">Cancel ride id</label>
       <input type="text" id="cancel" /><br /><br />
-      <input type="submit" value="Submit" onclick="cancel_ride()" />
+      <input type="button" value="Submit" onclick="cancel_ride()" />
     </form>
+  </div>
   </body>
 </html>

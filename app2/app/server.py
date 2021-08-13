@@ -40,8 +40,8 @@ def cancel_ride():
     server.cancel_ride(id)
     return "ok"
 
-@app.route('/stream')
-def stream():
+@app.route('/stream/<client_id>')
+def stream(client_id):
     def eventStream():
         n = 0
         while True:

@@ -1,22 +1,14 @@
 window.onload = () => {
   console.log("window loaded");
   document.getElementById("rides_result").style.display = "none";
-  var targetContainer = document.getElementById("data");
-  var eventSource = new EventSource("http://localhost:5000/stream");
-
-  eventSource.onerror = (event, err) => {
-    console.error("Error in connect SSE", event, err);
-  };
-  eventSource.addEventListener("message", (e) => {
-    console.log("received event", e);
-    targetContainer.innerHTML = e.data;
-  });
+  document.getElementById("signupdiv").style.display = "block";
+  document.getElementById("contentdiv").style.display = "none";
 };
 
 function toggleRides() {
   var x = document.getElementById("rides_result");
   if (x.style.display === "none") {
-    get_rides()
+    get_rides();
     x.style.display = "block";
   } else {
     x.style.display = "none";
@@ -52,6 +44,28 @@ function offer_or_want() {
     .catch((err) => {
       console.error(err);
     });
+
+  var targetContainer = document.getElementById("data");
+  var eventSource = new EventSource("http://localhost:5000/stream/" + username);
+
+  eventSource.onerror = (event, err) => {
+    console.error("Error in connect SSE", event, err);
+  };
+  eventSource.addEventListener("message", (e) => {
+    console.log("received event", e);
+    targetContainer.innerHTML = e.data;
+  });
+
+  clear_all();
+}
+
+function clear_all() {
+  document.getElementById("offered").checked == false;
+  document.getElementById("from").value = "";
+  document.getElementById("to").value = "";
+  document.getElementById("date").value = "";
+  document.getElementById("passengers").value = "";
+  document.getElementById("cancel").value = "";
 }
 
 function get_rides() {
@@ -63,7 +77,6 @@ function get_rides() {
       return response.json();
     })
     .then(function (ride_list) {
-
       var targetContainer = document.getElementById("response");
       response_json =
         "<pre>" + JSON.stringify(ride_list, undefined, 2) + "</pre>";
@@ -73,6 +86,8 @@ function get_rides() {
     .catch((err) => {
       console.error(err);
     });
+
+  clear_all();
 }
 
 function cancel_ride() {
@@ -91,6 +106,14 @@ function cancel_ride() {
     .catch((err) => {
       console.error(err);
     });
+
+  clear_all();
 }
+
+function signup() {
+  document.getElementById("signupdiv").style.display = "none";
+  document.getElementById("contentdiv").style.display = "block";
+}
+
 //execute with -> "python -m http.server 8080"
 //see logs on "localhost:8080/public"
