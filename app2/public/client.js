@@ -10,6 +10,8 @@ window.onload = () => {
     console.log('received event', e);
     targetContainer.innerHTML = e.data;
   });
+
+  
 }
 
 //execute with -> "python -m http.server 8080"

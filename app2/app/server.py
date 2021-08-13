@@ -1,6 +1,10 @@
-from flask import Flask, Response
+from flask import Flask, Response, request
 from time import sleep
 from flask_cors import CORS
+from ridesharingserver import RideSharingServer
+import json
+
+server = RideSharingServer()
 
 app = Flask(__name__)
 CORS(app)
@@ -14,6 +18,18 @@ def construct_message(event, data):
 def home():
     return 'hello bacanos'
 
+@app.route('/get_rides')
+def get_ride():
+    offered_rides = server.get_offered_rides()
+    print('rides in server', offered_rides)
+    return json.dumps(offered_rides)
+
+@app.route('/offer_ride', methods=['POST'])
+def offer_ride():
+    ride_json = json.loads(request.data)
+    print(ride_json)
+    server.add_offered_ride(ride_json)
+    return "ok"
 
 @app.route('/stream')
 def stream():
