@@ -11,9 +11,14 @@
   <script src="client.js"></script>
   <div id="data"></div>
   <button onclick="get_rides()">get_rides</button>
+  <button onclick="toggleRides()">Toggle Result</button>
+  <div id="rides_result">
   <p id='response'></p>
+</div>
 
   <form>
+    <label for="username">Username</label>
+    <input type="text" id="username"><br><br>
     <label for="from">From</label>
     <input type="text" id="from"><br><br>
     <label for="to">To</label>
@@ -29,12 +34,27 @@
 
   <script>
 function offer_or_want() {
-  fetch("http://localhost:5000/offer_ride", {
+  var is_offered = document.getElementById('offered').checked;
+  var from = document.getElementById('from').value;
+  var to = document.getElementById('to').value;
+  var date = document.getElementById('date').value;
+  var passengers = document.getElementById('passengers').value;
+  var username = document.getElementById('username').value;
+
+  ride = {
+		"location": [from, to],
+		"date": date,
+		"passengers": passengers,
+		"user": username,
+		"offered": is_offered
+}
+
+    fetch("http://localhost:5000/offer_or_want_ride", {
   "method": "POST",
   "headers": {
     "Content-Type": "application/json"
   },
-  "body": "{\"location\":[\"x\",\"y\"],\"date\":\"\",\"passengers\":\"2\",\"user\":\"id\",\"offered\":1}"
+  "body": JSON.stringify(ride)
 })
 .then(response => {
   console.log(response);
@@ -46,6 +66,21 @@ function offer_or_want() {
 
   </script>
 
+
+<script>
+function toggleRides() {
+  var x = document.getElementById("rides_result");
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
+}
+
+
+</script>
+
+
   <script>
     function get_rides() {
       fetch("http://localhost:5000/get_rides", {
@@ -53,12 +88,14 @@ function offer_or_want() {
   "headers": {}
 })
 .then(function(response) { return response.json(); })
-.then(function(json) {
+.then(function(ride_list) {
   // use the json
   // alert(json);
-  console.log(json);
+  // console.log(ride_list);
   var targetContainer = document.getElementById("response");
-  targetContainer.innerHTML = json;
+  response_json = "<pre>"+JSON.stringify(ride_list, undefined, 2)+"</pre>";
+
+  targetContainer.innerHTML = response_json
 })
 .catch(err => {
   console.error(err);

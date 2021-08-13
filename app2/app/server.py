@@ -24,11 +24,14 @@ def get_ride():
     print('rides in server', offered_rides)
     return json.dumps(offered_rides)
 
-@app.route('/offer_ride', methods=['POST'])
+@app.route('/offer_or_want_ride', methods=['POST'])
 def offer_ride():
     ride_json = json.loads(request.data)
     print(ride_json)
-    server.add_offered_ride(ride_json)
+    if ride_json['offered'] == 1:
+        server.add_offered_ride(ride_json)
+    else:
+        server.add_wanted_ride(ride_json)
     return "ok"
 
 @app.route('/stream')
