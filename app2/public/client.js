@@ -3,19 +3,6 @@ window.onload = () => {
   document.getElementById("rides_result").style.display = "none";
   document.getElementById("signupdiv").style.display = "block";
   document.getElementById("contentdiv").style.display = "none";
-  
-  var eventSource = new EventSource("http://localhost:5000/stream/" + 'yoshio');
-
-  eventSource.onerror = (event, err) => {
-    console.error("Error in connect SSE", event, err);
-  };
-
-  eventSource.addEventListener("message", (e) => {
-    console.log("received event", e);
-    var targetContainer = document.getElementById("data");
-    var data_filtered = e.data.replaceAll('---', '<br />');
-    targetContainer.innerHTML = data_filtered;
-  });
 };
 
 function toggleRides() {
@@ -115,6 +102,20 @@ function cancel_ride() {
 function signup() {
   document.getElementById("signupdiv").style.display = "none";
   document.getElementById("contentdiv").style.display = "block";
+
+  var username = document.getElementById("username").value;
+  var eventSource = new EventSource("http://localhost:5000/stream/" + username);
+
+  eventSource.onerror = (event, err) => {
+    console.error("Error in connect SSE", event, err);
+  };
+
+  eventSource.addEventListener("message", (e) => {
+    console.log("received event", e);
+    var targetContainer = document.getElementById("data");
+    var data_filtered = e.data.replaceAll('---', '<br />');
+    targetContainer.innerHTML = data_filtered;
+  });
 }
 
 //execute with -> "python -m http.server 8080"
