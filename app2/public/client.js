@@ -44,7 +44,7 @@ function offer_or_want() {
     .catch((err) => {
       console.error(err);
     });
-  
+
   clear_all();
 }
 
@@ -102,6 +102,10 @@ function cancel_ride() {
 function signup() {
   document.getElementById("signupdiv").style.display = "none";
   document.getElementById("contentdiv").style.display = "block";
+  document.getElementById("loggedas").innerHTML =
+    document.getElementById("username").value;
+  document.getElementById("loggedphone").innerHTML =
+    document.getElementById("phone").value;
 
   var username = document.getElementById("username").value;
   var eventSource = new EventSource("http://localhost:5000/stream/" + username);
@@ -113,7 +117,7 @@ function signup() {
   eventSource.addEventListener("message", (e) => {
     console.log("received event", e);
     var targetContainer = document.getElementById("data");
-    var data_filtered = e.data.replaceAll('---', '<br />');
+    var data_filtered = e.data.replaceAll("---", "<br />");
     targetContainer.innerHTML = data_filtered;
   });
 }

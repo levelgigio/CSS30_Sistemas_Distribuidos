@@ -2,7 +2,7 @@ from ride import Ride
 from user import User
 
 
-class RideSharingServer():
+class RideSharingServer:
     def __init__(self):
         self.users = []
         self.rides = []
