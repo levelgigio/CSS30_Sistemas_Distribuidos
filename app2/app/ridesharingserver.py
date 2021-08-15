@@ -10,7 +10,13 @@ class RideSharingServer():
 
     def get_offered_rides(self):
         if len(self.rides):
-            return [ride.get_ride_json() for ride in self.rides if ride.get_is_offered()]
+            return [ride for ride in self.rides if ride.get_is_offered()]
+        else:
+            return []
+
+    def get_wanted_rides(self):
+        if len(self.rides):
+            return [ride for ride in self.rides if not ride.get_is_offered()]
         else:
             return []
 
@@ -67,7 +73,8 @@ class RideSharingServer():
                 )
             )
 
-    
+    def get_rides(self):
+        return self.rides
 
     def add_offered_ride(self, ride_json):
         offered_ride = Ride(
@@ -82,25 +89,25 @@ class RideSharingServer():
         self.current_id = self.current_id + 1
         # self.print_ride(offered_ride.get_ride_json())
         self.rides.append(offered_ride)
-        for ride in self.rides:
-            if (
-                ride.get_location() == offered_ride.get_location()
-                and ride.get_date() == offered_ride.get_date()
-                and ride.get_passengers() == offered_ride.get_passengers()
-                and ride.get_is_offered() == 0
-            ):
-                try:
-                    passenger_uri = ride.get_user()
-                    # self.get_user_object(passenger_uri).notify_rides(
-                    #     [offered_ride.get_ride_json()]
-                    # )
+        # for ride in self.rides:
+        #     if (
+        #         ride.get_location() == offered_ride.get_location()
+        #         and ride.get_date() == offered_ride.get_date()
+        #         and ride.get_passengers() == offered_ride.get_passengers()
+        #         and ride.get_is_offered() == 0
+        #     ):
+        #         try:
+        #             passenger_uri = ride.get_user()
+        #             # self.get_user_object(passenger_uri).notify_rides(
+        #             #     [offered_ride.get_ride_json()]
+        #             # )
 
-                    # driver_uri = offered_ride.get_user()
-                    # self.get_user_object(driver_uri).notify_rides(
-                    #     [ride.get_ride_json()]
-                    # )
-                except:
-                    pass
+        #             # driver_uri = offered_ride.get_user()
+        #             # self.get_user_object(driver_uri).notify_rides(
+        #             #     [ride.get_ride_json()]
+        #             # )
+        #         except:
+        #             pass
 
         return offered_ride.get_id()
 
@@ -115,27 +122,27 @@ class RideSharingServer():
             ride_id=self.current_id,
         )
         self.current_id = self.current_id + 1
-        self.print_ride(wanted_ride.get_ride_json())
+        # self.print_ride(wanted_ride.get_ride_json())
         self.rides.append(wanted_ride)
-        for ride in self.rides:
-            if (
-                ride.get_location() == wanted_ride.get_location()
-                and ride.get_date() == wanted_ride.get_date()
-                and ride.get_passengers() == wanted_ride.get_passengers()
-                and ride.get_is_offered() == 1
-            ):
-                try:
-                    driver_uri = ride.get_user()
-                    # self.get_user_object(driver_uri).notify_rides(
-                    #     [wanted_ride.get_ride_json()]
-                    # )
+        # for ride in self.rides:
+        #     if (
+        #         ride.get_location() == wanted_ride.get_location()
+        #         and ride.get_date() == wanted_ride.get_date()
+        #         and ride.get_passengers() == wanted_ride.get_passengers()
+        #         and ride.get_is_offered() == 1
+        #     ):
+        #         try:
+        #             driver_uri = ride.get_user()
+        #             # self.get_user_object(driver_uri).notify_rides(
+        #             #     [wanted_ride.get_ride_json()]
+        #             # )
 
-                    # passenger_uri = wanted_ride.get_user()
-                    # self.get_user_object(passenger_uri).notify_rides(
-                    #     [ride.get_ride_json()]
-                    # )
-                except:
-                    pass
+        #             # passenger_uri = wanted_ride.get_user()
+        #             # self.get_user_object(passenger_uri).notify_rides(
+        #             #     [ride.get_ride_json()]
+        #             # )
+        #         except:
+        #             pass
 
         return wanted_ride.get_id()
 

@@ -3,6 +3,19 @@ window.onload = () => {
   document.getElementById("rides_result").style.display = "none";
   document.getElementById("signupdiv").style.display = "block";
   document.getElementById("contentdiv").style.display = "none";
+  
+  var eventSource = new EventSource("http://localhost:5000/stream/" + 'yoshio');
+
+  eventSource.onerror = (event, err) => {
+    console.error("Error in connect SSE", event, err);
+  };
+
+  eventSource.addEventListener("message", (e) => {
+    console.log("received event", e);
+    var targetContainer = document.getElementById("data");
+    var data_filtered = e.data.replaceAll('---', '<br />');
+    targetContainer.innerHTML = data_filtered;
+  });
 };
 
 function toggleRides() {
@@ -44,18 +57,7 @@ function offer_or_want() {
     .catch((err) => {
       console.error(err);
     });
-
-  var targetContainer = document.getElementById("data");
-  var eventSource = new EventSource("http://localhost:5000/stream/" + username);
-
-  eventSource.onerror = (event, err) => {
-    console.error("Error in connect SSE", event, err);
-  };
-  eventSource.addEventListener("message", (e) => {
-    console.log("received event", e);
-    targetContainer.innerHTML = e.data;
-  });
-
+  
   clear_all();
 }
 
